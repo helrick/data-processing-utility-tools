@@ -85,12 +85,11 @@ def get_readgroup_info(ubam, metadata):
 def readgroup_id_to_fname(rg_id, study_id=None, donor_id=None, sample_id=None):
     friendly_fname = "".join([ c if re.match(r"[a-zA-Z0-9\.\-_]", c) else "_" for c in rg_id ])
     md5sum = hashlib.md5(rg_id.encode('utf-8')).hexdigest()
-    fname_parts = [friendly_fname, md5sum, 'lane.bam']
-    if sample_id: fname_parts.insert(0, sample_id)
-    if donor_id: fname_parts.insert(0, donor_id)
-    if study_id: fname_parts.insert(0, study_id)
 
-    return ".".join(fname_parts)
+    if not sample_id or not donor_id or not study_id:
+        sys.exit('Error: missing study/donor/sample ID in the provided metadata')
+
+    return ".".join([study_id, donor_id, sample_id, friendly_fname, md5sum, 'lane.bam'])
 
 
 def main(args):
