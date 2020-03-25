@@ -29,7 +29,7 @@ params.wf_name = ""
 params.wf_short_name = ""
 params.wf_version = ""
 
-include "../payload-gen-read-group-ubam" params(params)
+include payloadGenReadGroupUbam from "../payload-gen-read-group-ubam" params(params)
 
 
 workflow {

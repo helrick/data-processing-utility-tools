@@ -67,7 +67,10 @@ def get_sample_info(sample_list):
 def get_readgroup_info(ubam, metadata):
     for rg in metadata.get("read_groups"):
         rg_id = rg.get("submitter_read_group_id")
-        ubam_name = readgroup_id_to_fname(rg_id)
+        study_id = metadata['studyId']
+        donor_id = metadata['samples'][0]['donor']['donorId']
+        sample_id = metadata['samples'][0]['sampleId']
+        ubam_name = readgroup_id_to_fname(rg_id, study_id, donor_id, sample_id)
         if os.path.basename(ubam) == ubam_name:
             return {
                 'submitter_read_group_id': rg.pop('submitter_read_group_id'),
@@ -79,10 +82,15 @@ def get_readgroup_info(ubam, metadata):
                 "supplied sequencing experiment metadata.\n" % ubam)
 
 
-def readgroup_id_to_fname(rg_id):
+def readgroup_id_to_fname(rg_id, study_id=None, donor_id=None, sample_id=None):
     friendly_fname = "".join([ c if re.match(r"[a-zA-Z0-9\.\-_]", c) else "_" for c in rg_id ])
     md5sum = hashlib.md5(rg_id.encode('utf-8')).hexdigest()
-    return "%s.%s.lane.bam" % (friendly_fname, md5sum)
+    fname_parts = [friendly_fname, md5sum, 'lane.bam']
+    if sample_id: fname_parts.insert(0, sample_id)
+    if donor_id: fname_parts.insert(0, donor_id)
+    if study_id: fname_parts.insert(0, study_id)
+
+    return ".".join(fname_parts)
 
 
 def main(args):
